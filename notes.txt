@@ -1,0 +1,14 @@
+Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process
+
+  CREATE TABLE products (
+    product_id INT PRIMARY KEY,
+    vendor_id INT NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    price DECIMAL(10, 2) NOT NULL,
+    stock INT NOT NULL,
+    category VARCHAR(100),
+    skin_type_suitability VARCHAR(255),
+    created_at DATETIME
+);
+add image brand
