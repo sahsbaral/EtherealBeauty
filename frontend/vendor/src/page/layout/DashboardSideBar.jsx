@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaBox, FaShoppingBag } from 'react-icons/fa';
+import { FaBox, FaShoppingBag, FaShoppingCart } from 'react-icons/fa';
 import { AiOutlineFolderAdd, AiOutlineGift } from 'react-icons/ai'; // Correct import
 import { HiOutlineReceiptRefund } from 'react-icons/hi';
 import { RxDashboard } from 'react-icons/rx';
@@ -65,13 +65,13 @@ const DashboardSideBar = ({ active }) => {
 
             <div className="w-full flex items-center p-4">
                 <Link to="/dashboard-events" className="w-full flex items-center gap-2">
-                    <AiOutlineFolderAdd size={30}
+                    <FaShoppingCart size={30}
                         color={'${active === 5 ? "crimson" : "#555"}'} />
                     <h5
                         className={`pl-2 text-[18px] font-[400] ${active === 5 ? "text-[crimson]" : "text-[black]"
                             }`}
                     >
-                        All Events
+                         Sales 
                     </h5>
                 </Link>
             </div>
@@ -85,7 +85,7 @@ const DashboardSideBar = ({ active }) => {
                         className={`pl-2 text-[18px] font-[400] ${active === 6 ? "text-[crimson]" : "text-[black]"
                             }`}
                     >
-                        Create Events
+                        Payments 
                     </h5>
                 </Link>
             </div>
