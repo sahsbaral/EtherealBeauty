@@ -8,6 +8,7 @@ import ProductPage from '../pages/products/ProductPage';
 import SingleProduct from '../pages/products/SingleProduct';
 
 import Login from '../components/Login';
+import Register from '../components/Register';
 
 
 const router = createBrowserRouter([
@@ -18,14 +19,18 @@ const router = createBrowserRouter([
         { path:"/", element: <Home/>},
         { path:"/brands/:brandName", element: <BrandPage/>},
         {path:"/search", element:<Search/>},
-        {path:"/products", element:<ProductPage/>},
-        {path:"/products/:id", element:<SingleProduct/>},
+        {path:"/product", element:<ProductPage/>},
+        {path:"/product/:id", element:<SingleProduct/>},
  
     ]
   },
   {
     path: "/login",
     element:<Login/>
+  },
+  {
+    path: "/register",
+    element:<Register/>
   }
 ]);
 
