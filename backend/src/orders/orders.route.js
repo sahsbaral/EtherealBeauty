@@ -1,7 +1,7 @@
 const express = require('express');
 const Order = require('./orders.model');
-const { EsewaPaymentGateway, EsewaCheckStatus } = require('esewajs');
-//const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+//const { EsewaPaymentGateway, EsewaCheckStatus } = require('esewajs');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const router = express.Router();
 
 // Create Checkout Session

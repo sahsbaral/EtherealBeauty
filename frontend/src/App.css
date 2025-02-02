@@ -57,6 +57,37 @@
 .btn:hover {
   background-color: var(--primary-color-dark);
 }
+.retake-button {
+  background-color: var(--primary-color); /* Use primary color */
+  padding: 15px 30px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 18px;
+  color: white;
+  font-weight: bold;
+}
+
+.retake-button:hover {
+  background-color: #d03544; /* Slightly darker red */
+  transform: scale(1.05); /* Slight zoom effect */
+}
+.capture-button {
+  background-color: #4CAF50; /* Green */
+  padding: 15px 30px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 18px;
+  color: white;
+  font-weight: bold;
+}
+
+.capture-button:hover {
+  background-color: #45a049; /* Darker green */
+  transform: scale(1.05); /* Slight zoom effect */
+}
+
 
 img {
   width: 100%;

@@ -25,10 +25,12 @@ app.use(
 // Import routes
 const productRoutes = require("./src/products/products.route");
 const orderRoutes = require("./src/orders/orders.route");
+const skinTest = require("./src/skinDetection/skinTest");
 
 // Routes setup
 app.use("/api/orders", orderRoutes);
 app.use("/api/products", productRoutes); //this is the baseurl for products
+app.use("/api/skin", skinTest); // Linking the skinTest API route
 
 
 // Sync database and start server
