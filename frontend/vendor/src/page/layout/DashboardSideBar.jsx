@@ -12,7 +12,7 @@ const DashboardSideBar = ({ active }) => {
         <div className="w-[250px] h-[100vh] bg-pink-200 text-black shadow-md sticky top-0 left-0 z-10">
             {/* single item */}
             <div className="w-full flex items-center p-4">
-                <Link to="/" className="w-full flex items-center gap-2">
+                <Link to="/Dashboard" className="w-full flex items-center gap-2">
                     <RxDashboard size={30}
                         color={'${active === 1 ? "crimson" : "#555"}'} />
                     <h5
@@ -32,7 +32,7 @@ const DashboardSideBar = ({ active }) => {
                         className={`pl-2 text-[18px] font-[400] ${active === 2 ? "text-[crimson]" : "text-[black]"
                             }`}
                     >
-                        All Orders
+                         Orders
                     </h5>
                 </Link>
             </div>
@@ -45,7 +45,7 @@ const DashboardSideBar = ({ active }) => {
                         className={`pl-2 text-[18px] font-[400] ${active === 3 ? "text-[crimson]" : "text-[black]"
                             }`}
                     >
-                        All Products
+                         Products
                     </h5>
                 </Link>
             </div>
