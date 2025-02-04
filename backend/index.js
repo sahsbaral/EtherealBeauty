@@ -5,6 +5,8 @@ require("dotenv").config();
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const sequelize = require("./src/database/db.config"); // Use Sequelize instance from db.config
+const path = require("path");
+
 
 const port = process.env.PORT || 5000; // Use PORT from .env
 const corsOrigin = process.env.corsOrigin; // Use CORS_ORIGIN from .env
@@ -26,6 +28,9 @@ app.use(
 const productRoutes = require("./src/products/products.route");
 const orderRoutes = require("./src/orders/orders.route");
 const skinTest = require("./src/skinDetection/skinTest");
+
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Routes setup
 app.use("/api/orders", orderRoutes);
