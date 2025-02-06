@@ -1,24 +1,62 @@
-import React, { useState } from 'react';
-import { getBaseUrl } from "../../utils/baseURL";
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { getBaseUrl } from '../../utils/baseURL';
 
+const EditProduct = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-const CreateProduct = () => {
   const [productData, setProductData] = useState({
     name: '',
     description: '',
     price: '',
     category: '',
     skin_type_suitability: '',
-    image: null,  // Store image as a file
     brand: '',
-    stock: '',  // Initialize stock as empty string
+    stock: '',
+    image: '',  // Image filename from the database
   });
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [message, setMessage] = useState('');
-  const [preview, setPreview] = useState(null); // For image preview
+  const [preview, setPreview] = useState(null);  // For image preview
 
-  // Handle input changes
+  // Fetch the product data on component mount
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const response = await axios.get(`${getBaseUrl()}/api/products/${id}`);
+        console.log(response.data);  // Log the response to inspect it
+
+        const product = response.data;  // Directly access product data
+        setProductData({
+          name: product.name,
+          description: product.description,
+          price: product.price,
+          category: product.category,
+          skin_type_suitability: product.skin_type_suitability,
+          brand: product.brand,
+          stock: product.stock,
+          image: product.image || '',  // Save image filename from DB
+        });
+
+        // Construct the image preview URL from the filename if available
+        if (product.image) {
+          setPreview(`${getBaseUrl()}/uploads/${product.image}`);
+        }
+      } catch (error) {
+        console.error('Error fetching product details:', error);
+        setMessage('Error fetching product details');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [id]);
+
+  // Handle form input change
   const handleChange = (e) => {
     const { name, value } = e.target;
     setProductData({
@@ -27,15 +65,15 @@ const CreateProduct = () => {
     });
   };
 
-  // Handle image selection
+  // Handle image change (for new image upload)
   const handleImageChange = (e) => {
-    const file = e.target.files[0];  // Get the selected file
+    const file = e.target.files[0];
     if (file) {
       setProductData({
         ...productData,
-        image: file,  // Store the image file in state
+        image: file,  // Set image file for upload
       });
-      setPreview(URL.createObjectURL(file));  // Generate image preview
+      setPreview(URL.createObjectURL(file));  // Preview the new image
     }
   };
 
@@ -44,69 +82,31 @@ const CreateProduct = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Check if all required fields are filled in
-    if (!productData.name || !productData.description || !productData.price || !productData.category || !productData.skin_type_suitability || !productData.brand || !productData.stock || !productData.image) {
-      setMessage('Please fill in all required fields.');
-      setIsLoading(false);
-      return;
-    }
-
+    // Create FormData object for the API request
     const formData = new FormData();
-    formData.append('name', productData.name);
-    formData.append('description', productData.description);
-    formData.append('price', productData.price);
-    formData.append('category', productData.category);
-    formData.append('skin_type_suitability', productData.skin_type_suitability);
-    formData.append('brand', productData.brand);
-    formData.append('stock', productData.stock);  // Include stock in the form data
+    Object.keys(productData).forEach((key) => {
+      formData.append(key, productData[key]);
+    });
 
-    // Append the image file to FormData
-    if (productData.image) {
-      formData.append('image', productData.image);
-    }
-
-    const apiUrl = `${getBaseUrl()}/api/products/create-vendor-product`;
     try {
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        body: formData,
+      const response = await axios.patch(`${getBaseUrl()}/api/products/update-product/${id}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
 
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setMessage('Product created successfully!');
-
-        // Reset the form fields and image preview after successful submission
-        setProductData({
-          name: '',
-          description: '',
-          price: '',
-          category: '',
-          skin_type_suitability: '',
-          image: null,
-          brand: '',
-          stock: '',  // Reset stock
-        });
-        setPreview(null); // Clear the preview
-
-        // Hide the success message after 5 seconds
-        setTimeout(() => setMessage(''), 5000);
-      } else {
-        setMessage(data.message || 'Error creating product!');
-      }
+      setMessage(response.data.message);
+      navigate("/dashboard-products"); // Redirect to products list after update
     } catch (error) {
-      setMessage('Error creating product!');
-      console.error(error);
+      console.error('Error updating product:', error);
+      setMessage('Error updating product');
     } finally {
       setIsLoading(false);
     }
   };
 
+  if (isLoading) return <p>Loading...</p>;
+
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg">
-      {/* Message Box above the form */}
       {message && (
         <div
           className={`p-4 mb-4 text-center text-lg font-semibold ${message.includes('Error') ? 'bg-red-100 text-red-500' : 'bg-green-100 text-green-500'} border rounded-md`}
@@ -115,7 +115,7 @@ const CreateProduct = () => {
         </div>
       )}
 
-      <h2 className="text-2xl font-bold text-center mb-6">Create a New Product</h2>
+      <h2 className="text-2xl font-bold text-center mb-6">Edit Product</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
           <label className="block text-lg font-semibold">Product Name</label>
@@ -206,7 +206,6 @@ const CreateProduct = () => {
             type="file"
             name="image"
             onChange={handleImageChange}
-            required
             className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {preview && (
@@ -214,18 +213,24 @@ const CreateProduct = () => {
               <img src={preview} alt="Preview" className="w-24 h-24 object-cover rounded mt-2 border border-gray-300 shadow-sm" />
             </div>
           )}
+          {/* Show image from DB if no new image is selected */}
+          {productData.image && !preview && (
+            <div className="mt-2">
+              <img src={`${getBaseUrl()}/uploads/${productData.image}`} alt="Existing Product" className="w-24 h-24 object-cover rounded mt-2 border border-gray-300 shadow-sm" />
+            </div>
+          )}
         </div>
 
         <button
           type="submit"
-          className="w-full py-3 text-white font-semibold rounded-md  btn"
-          disabled={isLoading}  // Disable button while loading
+          className="w-full py-3 text-white font-semibold rounded-md bg-blue-500"
+          disabled={isLoading}
         >
-          {isLoading ? 'Creating...' : 'Create Product'}
+          {isLoading ? 'Updating...' : 'Update Product'}
         </button>
       </form>
     </div>
   );
 };
 
-export default CreateProduct;
+export default EditProduct;

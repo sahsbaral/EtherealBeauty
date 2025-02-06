@@ -11,7 +11,7 @@ const Dashboard = () => {
     // Fetch total products and total orders when the component is mounted
     const fetchDashboardData = async () => {
       try {
-        const productResponse = await axios.get(`${getBaseUrl()}/api/products/total-products`);
+        const productResponse = await axios.get(`${getBaseUrl()}/api/products/total-vendor-products`);
         setTotalProducts(productResponse.data.totalProducts);
 
         // const orderResponse = await axios.get(`${getBaseUrl()}/api/orders/total-orders`);  // Assuming your backend has an API for total orders

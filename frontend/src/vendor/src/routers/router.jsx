@@ -3,25 +3,29 @@ import App from '../App';
 import CreateProduct from '../page/shop/CreateProduct';
 import AllProducts from '../page/shop/AllProducts';
 import Dashboard from '../page/shop/Dashboard';
+import EditProducts from '../page/shop/EditProducts';
 
 const router = createBrowserRouter([
     {
         path: "/",
-        element: <App />, // App serves as the layout
+        element: <App />, // App serves as the layout (with Sidebar)
         children: [
             {
-                path: "Dashboard", // Define the route
-                element: <Dashboard />, // Specify the component for this route
+                path: "dashboard",  // Root route for Dashboard
+                element: <Dashboard />, // Dashboard page will render here
             },
             {
-                path: "dashboard-create-product", // Define the route
-                element: <CreateProduct />, // Specify the component for this route
+                path: "dashboard-create-product", // Route for Create Product page
+                element: <CreateProduct />,
             },
             {
-                path: "dashboard-products",
-                element: <AllProducts/>,
+                path: "dashboard-products", // Route for All Products page
+                element: <AllProducts />,
             },
-        
+            {
+                path: "edit-product/:id", // Route for Edit Product page
+                element: <EditProducts />,
+            },
         ],
     },
 ]);
