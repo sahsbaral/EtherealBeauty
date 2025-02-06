@@ -2,19 +2,8 @@ const express = require("express");
 const Product = require("./products.model");
 const router = express.Router();
 
-// Create a product
-router.post("/create-product", async (req, res) => {
-  try {
-    const newProduct = await Product.create(req.body);
-    res.status(201).json(newProduct);
-  } catch (error) {
-    console.error("Error creating product:", error);
-    res.status(500).json({ message: "Failed to create product" });
-  }
-});
-
-// Get all products
-router.get("/", async (req, res) => {
+// ✅ Get all products
+router.get("/allProducts", async (req, res) => {
   try {
     const products = await Product.findAll();
     res.status(200).json(products);
@@ -24,7 +13,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Get single product
+// ✅ Get a single product by ID
 router.get("/:id", async (req, res) => {
   try {
     const product = await Product.findByPk(req.params.id);
@@ -38,35 +27,57 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// Update a product
-router.patch("/update-product/:id", async (req, res) => {
+// ✅ Get products by brand
+router.get("/brand/:brand", async (req, res) => {
   try {
-    const updatedProduct = await Product.update(req.body, {
-      where: { product_id: req.params.id },
+    const products = await Product.findAll({
+      where: { brand: req.params.brand },
     });
-    if (!updatedProduct[0]) {
-      return res.status(404).json({ message: "Product not found" });
+
+    if (products.length === 0) {
+      return res.status(404).json({ message: "No products found for this brand" });
     }
-    res.status(200).json({ message: "Product updated successfully" });
+
+    res.status(200).json(products);
   } catch (error) {
-    console.error("Error updating product:", error);
-    res.status(500).json({ message: "Failed to update product" });
+    console.error("Error fetching products by brand:", error);
+    res.status(500).json({ message: "Failed to fetch products by brand" });
   }
 });
 
-// Delete a product
-router.delete("/:id", async (req, res) => {
+// ✅ Get products by skin type suitability
+router.get("/skin-type/:skinType", async (req, res) => {
   try {
-    const deleted = await Product.destroy({
-      where: { product_id: req.params.id },
+    const products = await Product.findAll({
+      where: { skin_type_suitability: req.params.skinType },
     });
-    if (!deleted) {
-      return res.status(404).json({ message: "Product not found" });
+
+    if (products.length === 0) {
+      return res.status(404).json({ message: "No products found for this skin type" });
     }
-    res.status(200).json({ message: "Product deleted successfully" });
+
+    res.status(200).json(products);
   } catch (error) {
-    console.error("Error deleting product:", error);
-    res.status(500).json({ message: "Failed to delete product" });
+    console.error("Error fetching products by skin type suitability:", error);
+    res.status(500).json({ message: "Failed to fetch products" });
+  }
+});
+
+// ✅ Get related products by category
+router.get("/related/:category", async (req, res) => {
+  try {
+    const products = await Product.findAll({
+      where: { category: req.params.category },
+    });
+
+    if (products.length === 0) {
+      return res.status(404).json({ message: "No related products found" });
+    }
+
+    res.status(200).json(products);
+  } catch (error) {
+    console.error("Error fetching related products:", error);
+    res.status(500).json({ message: "Failed to fetch related products" });
   }
 });
 

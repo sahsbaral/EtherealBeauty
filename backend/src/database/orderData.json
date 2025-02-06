@@ -1,0 +1,34 @@
+{
+    "users": [
+      {
+        "id": "guest-12345",
+        "name": "Guest User",
+        "email": "guest@example.com",
+        "orders": [
+          {
+            "orderId": "order-001",
+            "products": [
+              {
+                "id": "prod-101",
+                "name": "Wireless Mouse",
+                "price": 25.99,
+                "quantity": 1
+              },
+              {
+                "id": "prod-102",
+                "name": "Mechanical Keyboard",
+                "price": 55.99,
+                "quantity": 1
+              }
+            ],
+            "totalPrice": 81.98,
+            "tax": 6.56,
+            "grandTotal": 88.54,
+            "status": "pending",
+            "createdAt": "2025-01-31T12:00:00Z"
+          }
+        ]
+      }
+    ]
+  }
+  

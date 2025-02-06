@@ -37,7 +37,7 @@ const Product = sequelize.define(
     type: DataTypes.STRING, // URL or path to the image
     allowNull: true,
   },
-  brandname: {
+  brand: {
     type: DataTypes.STRING, // Brand name of the product
     allowNull: true,
   },
