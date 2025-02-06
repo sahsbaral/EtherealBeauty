@@ -1,5 +1,5 @@
 const { DataTypes } = require("sequelize");
-const sequelize = require("../database/db.config"); // Import Sequelize instance
+const sequelize = require("../../database/db.config"); // Import Sequelize instance
 
 // Define the Vendor model
 const Vendor = sequelize.define(

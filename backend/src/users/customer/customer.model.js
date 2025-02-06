@@ -19,7 +19,7 @@ const Customer = sequelize.define("Customers", {
   phone_no: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique: true,  // Ensure the phone number is unique
+   unique: true,  // Ensure the phone number is unique
   },
   password: {
     type: DataTypes.STRING,

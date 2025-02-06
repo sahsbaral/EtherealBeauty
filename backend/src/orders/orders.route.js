@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Order = require("./orders.model");
+const OrderItem = require("./orderItems.model");
 //const authenticate = require("../middleware/authenticate"); // Assuming JWT-based auth middleware
 const authenticate = (req, res, next) => {
   console.log("Authentication middleware triggered");
@@ -59,6 +60,7 @@ router.post(
 
       res.status(201).json({ message: "Order placed successfully", order: newOrder });
     } catch (error) {
+      console.error("error",error);
       res.status(500).json({ error: error.message });
     }
   }
