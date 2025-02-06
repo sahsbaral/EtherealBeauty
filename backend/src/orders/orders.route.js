@@ -1,153 +1,111 @@
-const express = require('express');
-const Order = require('./orders.model');
-//const { EsewaPaymentGateway, EsewaCheckStatus } = require('esewajs');
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const express = require("express");
 const router = express.Router();
+const Order = require("./orders.model");
+const OrderItem = require("./orderItems.model");
+//const authenticate = require("../middleware/authenticate"); // Assuming JWT-based auth middleware
+const authenticate = (req, res, next) => {
+  console.log("Authentication middleware triggered");
+  next();
+};
+const { body, validationResult } = require("express-validator");
 
-// Create Checkout Session
-router.post('/create-checkout-session', async (req, res) => {
-  const { products } = req.body;
 
-  try {
-    const lineItems = products.map((product) => ({
-      price_data: {
-        currency: 'usd',
-        product_data: {
-          name: product.name,
-          images: [product.image],
-        },
-        unit_amount: Math.round(product.price * 100),
-      },
-      quantity: product.quantity,
-    }));
 
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      line_items: lineItems,
-      mode: 'payment',
-      success_url:
-        'https://www.protonier.xyz/success?session_id={CHECKOUT_SESSION_ID}',
-      cancel_url: 'https://www.protonier.xyz/cancel',
-    });
+// Create an Order
+router.post(
+  "/",
+  authenticate,
+  [
+    body("customer_id").isInt().withMessage("Customer ID must be an integer"),
+    body("total_price").isFloat({ min: 0.01 }).withMessage("Total price must be valid"),
+    body("payment_method").isIn(["eSewa", "Khalti", "Cash On Delivery"]).withMessage("Invalid payment method"),
+    body("address.province").notEmpty().withMessage("Province is required"),
+    body("address.district").notEmpty().withMessage("District is required"),
+    body("address.municipality").notEmpty().withMessage("Municipality is required"),
+    body("address.additionalInfo").optional().isString(),
+  //   body("products").isArray({ min: 1 }).withMessage("At least one product is required"),
+  //   body("products.*.id").isInt().withMessage("Product ID must be an integer"),
+  //   body("products.*.name").isString().withMessage("Product name must be a string"),
+  //   body("products.*.quantity").isInt({ min: 1 }).withMessage("Quantity must be at least 1"),
+  //   body("products.*.price").isFloat({ min: 0.01 }).withMessage("Price must be valid"),
+  // 
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
 
-    res.json({ id: session.id });
-  } catch (error) {
-    console.error('Error creating checkout session:', error);
-    res.status(500).json({ error: 'Failed to create checkout session' });
-  }
-});
+    try {
+      const { customer_id, total_price, payment_method, address, products } = req.body;
 
-// Confirm Payment
-router.post('/confirm-payment', async (req, res) => {
-  const { session_id } = req.body;
+      // Step 1: Create the order
+      const newOrder = await Order.create({
+        customer_id,
+        total_price,
+        payment_method,
+        address: JSON.stringify(address), // Store address as JSON
+      });
 
-  try {
-    const session = await stripe.checkout.sessions.retrieve(session_id, {
-      expand: ['line_items', 'payment_intent'],
-    });
-
-    const paymentIntentId = session.payment_intent.id;
-
-    let order = await Order.findOne({ where: { orderId: paymentIntentId } });
-
-    if (!order) {
-      const lineItems = session.line_items.data.map((item) => ({
-        productId: item.price.product,
-        quantity: item.quantity,
+      // Step 2: Insert products into OrderItem
+      const orderItems = products.map(({ id, quantity, price }) => ({
+        order_id: newOrder.order_id,
+        product_id: id,
+        vendor_id: 1, // Adjust vendor logic based on your system
+        quantity,
+        subtotal: quantity * price,
       }));
 
-      const amount = session.amount_total / 100;
+      await OrderItem.bulkCreate(orderItems); // Insert all items in one go
 
-      order = await Order.create({
-        orderId: paymentIntentId,
-        products: lineItems,
-        amount,
-        email: session.customer_details.email,
-        status: session.payment_intent.status === 'succeeded' ? 'pending' : 'failed',
-      });
-    } else {
-      order.status = session.payment_intent.status === 'succeeded' ? 'pending' : 'failed';
-      await order.save();
+      res.status(201).json({ message: "Order placed successfully", order: newOrder });
+    } catch (error) {
+      console.error("error",error);
+      res.status(500).json({ error: error.message });
     }
-
-    res.json({ order });
-  } catch (error) {
-    console.error('Error confirming payment:', error);
-    res.status(500).json({ error: 'Failed to confirm payment' });
   }
-});
+);
 
-// Get orders by email
-router.get('/:email', async (req, res) => {
-  const email = req.params.email;
-
+// Get all orders
+router.get("/allOrders", authenticate, async (req, res) => {
   try {
-    const orders = await Order.findAll({ where: { email }, order: [['createdAt', 'DESC']] });
-
-    if (!orders.length) {
-      return res.status(404).json({ message: 'No orders found for this email' });
-    }
-
+    const orders = await Order.findAll();
     res.json(orders);
   } catch (error) {
-    console.error('Error fetching orders:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ error: error.message });
   }
 });
+//test
+router.get("/test", (req, res) => {
+  res.json({ message: "Orders route is working!" });
+});
 
-// Get a single order
-router.get('/order/:id', async (req, res) => {
+// Get a single order by ID
+router.get("/:id", authenticate, async (req, res) => {
   try {
     const order = await Order.findByPk(req.params.id);
-
     if (!order) {
-      return res.status(404).json({ message: 'Order not found' });
+      return res.status(404).json({ error: "Order not found" });
     }
-
     res.json(order);
   } catch (error) {
-    console.error('Error fetching order:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ error: error.message });
   }
 });
 
-// Update order status
-router.patch('/update-order-status/:id', async (req, res) => {
-  const { status } = req.body;
-
+router.get("/:id", authenticate, async (req, res) => {
+  console.log("Fetching order with ID:", req.params.id);
   try {
     const order = await Order.findByPk(req.params.id);
-
     if (!order) {
-      return res.status(404).json({ message: 'Order not found' });
+      return res.status(404).json({ error: "Order not found" });
     }
-
-    order.status = status;
-    await order.save();
-
-    res.json({ message: 'Order status updated successfully', order });
+    res.json(order);
   } catch (error) {
-    console.error('Error updating order status:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ error: error.message });
   }
 });
 
-// Delete an order
-router.delete('/delete-order/:id', async (req, res) => {
-  try {
-    const order = await Order.findByPk(req.params.id);
 
-    if (!order) {
-      return res.status(404).json({ message: 'Order not found' });
-    }
-
-    await order.destroy();
-
-    res.json({ message: 'Order deleted successfully', order });
-  } catch (error) {
-    console.error('Error deleting order:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
 
 module.exports = router;

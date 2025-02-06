@@ -14,12 +14,14 @@ const corsOrigin = process.env.corsOrigin; // Use CORS_ORIGIN from .env
 app.use(express.json({ limit: "25mb" }));
 app.use(express.urlencoded({ limit: "25mb" }));
 app.use(cookieParser());
-app.use(bodyParser.json());
+
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 app.use(
   cors({
     origin: corsOrigin,
+    //origin: "*", // Allow all origins for now
     credentials: true,
   })
 );
@@ -45,7 +47,8 @@ async function main() {
     await sequelize.authenticate(); // Authenticate database connection
     await sequelize.sync(); // Synchronize models with the database
     console.log("Database connected and synced successfully!");
-
+  
+    
     app.get("/", (req, res) => {
       res.send("Ethereal Beauty Server is Running..!");
     });
