@@ -20,8 +20,29 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 
-// backend/src/products/product.route.js
-// backend/src/products/product.route.js
+// Fetch all products (with vendor_id = 1)
+router.get('/display_vendor_products', async (req, res) => {
+  try {
+    const products = await Product.findAll({
+      where: { vendor_id: 1 }  // Filter by vendor ID 1
+    });
+
+    const productsWithImages = products.map(product => {
+      // If the product has an image, append the full path
+      if (product.image) {
+        product.image = `http://localhost:5000${product.image}`;
+      }
+      return product;
+    });
+
+    res.status(200).json(productsWithImages);
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    res.status(500).json({ message: 'Error fetching products' });
+  }
+});
+
+
 router.get("/total-products", async (req, res) => {
   try {
     const vendorId = 1;  // Assuming vendor_id is always 1 for now
@@ -34,6 +55,24 @@ router.get("/total-products", async (req, res) => {
     res.status(500).json({ message: "Failed to fetch total products" });
   }
 });
+
+// Get a single product by ID
+router.get("/:id", async (req, res) => {
+  try {
+    const product = await Product.findByPk(req.params.id);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+    res.status(200).json(product);
+  } catch (error) {
+    console.error("Error fetching product:", error);
+    res.status(500).json({ message: "Failed to fetch product" });
+  }
+});
+
+
+
+
 
 
 // Create a product (updated to use vendor_id from session)
@@ -67,45 +106,45 @@ router.post("/create-product", upload.single("image"), async (req, res) => {
 
 
 
-// Fetch all products (with vendor_id = 1)
-router.get('/display_products', async (req, res) => {
-  try {
-    const products = await Product.findAll({
-      where: { vendor_id: 1 }  // Filter by vendor ID 1
-    });
-
-    const productsWithImages = products.map(product => {
-      // If the product has an image, append the full path
-      if (product.image) {
-        product.image = `http://localhost:5000${product.image}`;
-      }
-      return product;
-    });
-
-    res.status(200).json(productsWithImages);
-  } catch (error) {
-    console.error('Error fetching products:', error);
-    res.status(500).json({ message: 'Error fetching products' });
-  }
-});
 
 
 
 // Update a product
-router.patch("/update-product/:id", async (req, res) => {
+
+router.patch("/update-product/:id", upload.single('image'), async (req, res) => {
   try {
-    const updatedProduct = await Product.update(req.body, {
-      where: { product_id: req.params.id },
-    });
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : req.body.image;
+
+    const updatedProduct = await Product.update(
+      { 
+        name: req.body.name,
+        description: req.body.description,
+        price: req.body.price,
+        category: req.body.category,
+        brand: req.body.brand,
+        skin_type_suitability: req.body.skin_type_suitability,
+        image: imageUrl, // Make sure image URL is updated in the database
+      },
+      {
+        where: { product_id: req.params.id }
+      }
+    );
+
     if (!updatedProduct[0]) {
       return res.status(404).json({ message: "Product not found" });
     }
-    res.status(200).json({ message: "Product updated successfully" });
+   // Fetch the updated product and return it
+    const updatedProductData = await Product.findOne({ where: { product_id: req.params.id } });
+    res.status(200).json({
+      message: "Product updated successfully",
+      product: updatedProductData, // Send back the entire updated product object
+    });
   } catch (error) {
     console.error("Error updating product:", error);
     res.status(500).json({ message: "Failed to update product" });
   }
 });
+
 
 // Delete a product
 router.delete("/:id", async (req, res) => {

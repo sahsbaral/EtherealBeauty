@@ -32,6 +32,7 @@ const skinTest = require("./src/skinDetection/skinTest");
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+
 // Routes setup
 app.use("/api/orders", orderRoutes);
 app.use("/api/products", productRoutes); //this is the baseurl for products
