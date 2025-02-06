@@ -2,19 +2,8 @@ const express = require("express");
 const Product = require("./products.model");
 const router = express.Router();
 
-// Create a product
-router.post("/create-product", async (req, res) => {
-  try {
-    const newProduct = await Product.create(req.body);
-    res.status(201).json(newProduct);
-  } catch (error) {
-    console.error("Error creating product:", error);
-    res.status(500).json({ message: "Failed to create product" });
-  }
-});
-
-// Get all products
-router.get("/", async (req, res) => {
+// ✅ Get all products
+router.get("/allProducts", async (req, res) => {
   try {
     const products = await Product.findAll();
     res.status(200).json(products);
@@ -24,7 +13,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Get single product
+// ✅ Get a single product by ID
 router.get("/:id", async (req, res) => {
   try {
     const product = await Product.findByPk(req.params.id);
@@ -33,12 +22,10 @@ router.get("/:id", async (req, res) => {
     }
     res.status(200).json(product);
   } catch (error) {
-    console.error('Error fetching products:', error);
-    res.status(500).json({ message: 'Error fetching products' });
+    console.error("Error fetching product:", error);
+    res.status(500).json({ message: "Failed to fetch product" });
   }
 });
-
-
 
 // ✅ Get products by brand
 router.get("/brand/:brand", async (req, res) => {
