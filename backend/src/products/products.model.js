@@ -1,8 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../database/db.config"); // Sequelize instance
 
-const Product = sequelize.define(
-  "Product", {
+const Product = sequelize.define('Product', {
   product_id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -13,11 +12,12 @@ const Product = sequelize.define(
     allowNull: false,
   },
   name: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(255),
     allowNull: false,
   },
   description: {
     type: DataTypes.TEXT,
+    allowNull: true,
   },
   price: {
     type: DataTypes.DECIMAL(10, 2),
@@ -25,27 +25,24 @@ const Product = sequelize.define(
   },
   stock: {
     type: DataTypes.INTEGER,
-    allowNull: false,
+    allowNull: true,
   },
   category: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(100),
+    allowNull: true,
   },
-  skin_type_suitability: {
-    type: DataTypes.STRING,
+  brand: {
+    type: DataTypes.STRING(100),
+    allowNull: true,
   },
   image: {
-    type: DataTypes.STRING, // URL or path to the image
+    type: DataTypes.STRING(200),
     allowNull: true,
   },
-  brandname: {
-    type: DataTypes.STRING, // Brand name of the product
+  skin_type_suitability: {
+    type: DataTypes.STRING(255),
     allowNull: true,
   },
-},
-  {
-    tableName: "Products",
-    timestamps: false, // Disable createdAt and updatedAt
-  }
-);
+});
 
 module.exports = Product;

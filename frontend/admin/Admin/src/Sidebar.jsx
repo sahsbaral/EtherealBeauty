@@ -16,39 +16,41 @@ function Sidebar({openSidebarToggle, OpenSidebar}) {
 
         <ul className='sidebar-list'>
             <li className='sidebar-list-item'>
-                <a href="">
-                    <BsGrid1X2Fill className='icon'/> Dashboard
-                </a>
+            <Link to="/">
+                                <BsGrid1X2Fill className='icon'/> Dashboard
+                                </Link>
             </li>
+            
             <li className='sidebar-list-item'>
-                <a href="">
+            <Link to="/dashboard-products">
                     <BsFillArchiveFill className='icon'/> Products
-                </a>
+                </Link>
+            </li>
+
+            <li className='sidebar-list-item'>
+                <Link to="/dashboard-vendors">
+                    <BsFillGrid3X3GapFill className='icon'/> Vendors
+                </Link>
             </li>
             <li className='sidebar-list-item'>
-                <a href="">
-                    <BsFillGrid3X3GapFill className='icon'/> Categories
-                </a>
-            </li>
-            <li className='sidebar-list-item'>
-                <a href="">
+                <Link to="/dashboard-customers">
                     <BsPeopleFill className='icon'/> Customers
-                </a>
+                </Link>
             </li>
             <li className='sidebar-list-item'>
-                <a href="">
+                <Link to="/dashboard-inventory">
                     <BsListCheck className='icon'/> Inventory
-                </a>
+                </Link>
             </li>
             <li className='sidebar-list-item'>
-                <a href="">
+                <Link to="dashboard-reports">
                     <BsMenuButtonWideFill className='icon'/> Reports
-                </a>
+                </Link>
             </li>
             <li className='sidebar-list-item'>
-                <a href="">
+                <Link to="dashboard-setting">
                     <BsFillGearFill className='icon'/> Setting
-                </a>
+                </Link>
             </li>
         </ul>
     </aside>
