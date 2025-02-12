@@ -20,9 +20,18 @@ const Vendors = () => {
     fetchVendors();
   }, []);
 
+  const approveVendor = async (vendorId) => {
+    try {
+      await axios.put(`${getBaseUrl()}/api/vendors/approve/${vendorId}`);
+      setVendors((prevVendors) => prevVendors.filter(vendor => vendor.vendor_id !== vendorId));
+    } catch (error) {
+      console.error("Error approving vendor:", error);
+    }
+  };
+
   return (
     <div className="vendors-container p-6">
-      <h2 className="text-2xl font-bold">Vendors</h2>
+      <h2 className="text-2xl font-bold">Pending Vendors</h2>
       
       {/* Display error message if there is an error */}
       {error && <p className="text-red-500">{error}</p>}
@@ -42,6 +51,11 @@ const Vendors = () => {
               <p><strong>Terms Accepted:</strong> {vendor.termsAccepted ? "Yes" : "No"}</p>
               <p><strong>Created At:</strong> {new Date(vendor.createdAt).toLocaleDateString()}</p>
               <p><strong>Updated At:</strong> {new Date(vendor.updatedAt).toLocaleDateString()}</p>
+              <button 
+                onClick={() => approveVendor(vendor.vendor_id)} 
+                className="mt-2 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">
+                Approve
+              </button>
             </div>
           ))
         ) : (
@@ -50,6 +64,6 @@ const Vendors = () => {
       </div>
     </div>
   );
-}
+};
 
 export default Vendors;
