@@ -39,8 +39,8 @@ const Product = sequelize.define('Product', {
     type: DataTypes.STRING(200),
     allowNull: true,
   },
-  skin_type_suitability: {
-    type: DataTypes.STRING(255),
+  brand: {
+    type: DataTypes.STRING, // Brand name of the product
     allowNull: true,
   },
 });
