@@ -9,7 +9,7 @@ const Vendors = () => {
   useEffect(() => {
     const fetchVendors = async () => {
       try {
-        const response = await axios.get(`${getBaseUrl()}/api/products/display_all_vendors`);
+        const response = await axios.get(`${getBaseUrl()}/api/vendors/unapproved`);
         setVendors(response.data);
       } catch (err) {
         setError("Error fetching vendors");
@@ -23,7 +23,9 @@ const Vendors = () => {
   const approveVendor = async (vendorId) => {
     try {
       await axios.put(`${getBaseUrl()}/api/vendors/approve/${vendorId}`);
-      setVendors((prevVendors) => prevVendors.filter(vendor => vendor.vendor_id !== vendorId));
+      setVendors((prevVendors) => prevVendors.map(vendor => 
+        vendor.vendor_id === vendorId ? { ...vendor, isApproved: true } : vendor
+      ));
     } catch (error) {
       console.error("Error approving vendor:", error);
     }
@@ -33,7 +35,6 @@ const Vendors = () => {
     <div className="vendors-container p-6">
       <h2 className="text-2xl font-bold">Pending Vendors</h2>
       
-      {/* Display error message if there is an error */}
       {error && <p className="text-red-500">{error}</p>}
 
       <div className="vendors-list mt-4">
@@ -47,14 +48,24 @@ const Vendors = () => {
               <p><strong>Business Name:</strong> {vendor.businessName}</p>
               <p><strong>Business Registration Number:</strong> {vendor.businessRN}</p>
               <p><strong>Business Address:</strong> {vendor.businessAddress}</p>
-              <p><strong>Citizenship:</strong> {vendor.citizenShip}</p>
+              <p><strong>Business License:</strong></p>
+              <img
+                src={`${getBaseUrl()}/uploads/${vendor.businessLicense}`}
+                alt={`Business License of ${vendor.businessName}`}
+                className="mt-2 max-w-full h-auto rounded-md"
+                onError={(e) => {
+                  e.target.src = 'https://via.placeholder.com/150';
+                }}
+              />
               <p><strong>Terms Accepted:</strong> {vendor.termsAccepted ? "Yes" : "No"}</p>
               <p><strong>Created At:</strong> {new Date(vendor.createdAt).toLocaleDateString()}</p>
               <p><strong>Updated At:</strong> {new Date(vendor.updatedAt).toLocaleDateString()}</p>
-              <button 
-                onClick={() => approveVendor(vendor.vendor_id)} 
-                className="mt-2 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">
-                Approve
+              <button
+                onClick={() => approveVendor(vendor.vendor_id)}
+                className={`mt-2 px-4 py-2 rounded-md ${vendor.isApproved ? 'bg-gray-400' : 'bg-green-500 hover:bg-green-600'}`}
+                disabled={vendor.isApproved}
+              >
+                {vendor.isApproved ? "Approved" : "Approve"}
               </button>
             </div>
           ))
